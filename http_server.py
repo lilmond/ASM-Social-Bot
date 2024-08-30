@@ -3,11 +3,14 @@ from components import twitter_settings, xaman_settings
 import requests
 import toml
 
+
 CONFIG = toml.load("./src/config.toml")
 app = Flask(__name__)
 
+
 def _response(title: str, message: str, status_code: int):
     return render_template("response.html", title=title, message=message), status_code
+
 
 @app.route("/link-twitter")
 def link_twitter():
@@ -47,7 +50,7 @@ def link_twitter():
         if twitter_id_info:
             if not (twitter_id_info[1] == user_discord_id):
                 requests.post(
-                    "https://discord.com/api/v9/channels/<REDACTED>/messages",
+                    "https://discord.com/api/v9/channels/1266640906786967663/messages",
                     headers={
                         "Authorization": f"Bot {CONFIG['DISCORD_BOT_TOKEN']}"
                     },
@@ -132,6 +135,7 @@ def link_xaman():
     xaman_settings.set_uuid_wallet(uuid=payload_uuid, xrp_address=account_address)
 
     return 200, "OK"
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
