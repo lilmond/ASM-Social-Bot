@@ -1,7 +1,6 @@
 from flask import Flask, request, render_template
 from components import twitter_settings, xaman_settings
 import requests
-import tweepy
 import toml
 
 CONFIG = toml.load("./src/config.toml")
@@ -20,6 +19,7 @@ def link_twitter():
 
     try:
         oauth_state_info = twitter_settings.get_oauth_state(oauth_state=oauth_state)
+
         if not oauth_state:
             raise Exception
         
@@ -43,6 +43,7 @@ def link_twitter():
         user_twitter_id = twitter_user_info["id"]
 
         twitter_id_info = twitter_settings.get_twitter_user(user_twitter_id=user_twitter_id)
+
         if twitter_id_info:
             if not (twitter_id_info[1] == user_discord_id):
                 requests.post(
@@ -57,7 +58,9 @@ def link_twitter():
                             "color": 0xff0000
                         }]
                     })
+                
                 return _response(title="Error!", message="This Twitter account has already been linked to another Discord account!", status_code=400)
+            
     except Exception as e:
         return _response(title="Error!", message=f"An error has occured while trying to verify your request.", status_code=400)
 
@@ -75,6 +78,7 @@ def link_twitter():
         })
     
     twitter_settings.user_verified(user_discord_id=user_discord_id, user_twitter_id=user_twitter_id, access_token=token_info["access_token"], refresh_token=token_info["refresh_token"], token_url=request.url)
+    
     return _response(title="Success!", message=f"You have successfully linked your Twitter account. Your Twitter ID: {user_twitter_id}", status_code=200)
 
 
@@ -82,6 +86,7 @@ def link_twitter():
 def link_instagram():
     oauth_state = request.args.get("state")
     oauth_code = request.args.get("code")
+
     if not all([oauth_code, oauth_state]):
         return _response(title="Error!", message="ERROR: Invalid URL.", status_code=400)
     
@@ -92,6 +97,7 @@ def link_instagram():
 
     return _response(title="Success!", message=f"You have successfully linked your Instagram account. Validate: {oauth_validate}", status_code=200)
 
+
 @app.route("/link-xaman", methods=["POST"])
 def link_xaman():
     data = request.get_json(force=True)
@@ -101,6 +107,7 @@ def link_xaman():
     
     if not "payload_uuidv4" in data["meta"]:
         return
+    
     payload_uuid = data["meta"]["payload_uuidv4"]
 
     url = f"https://xumm.app/api/v1/platform/payload/{payload_uuid}"
@@ -113,10 +120,13 @@ def link_xaman():
     }
 
     payload_get = requests.get(url, headers=headers).json()
+
     if not "response" in payload_get:
         return
+    
     if not "account" in payload_get["response"]:
         return
+    
     account_address = payload_get["response"]["account"]
 
     xaman_settings.set_uuid_wallet(uuid=payload_uuid, xrp_address=account_address)
