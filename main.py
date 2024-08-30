@@ -8,13 +8,16 @@ import toml
 import time
 import os
 
+
 CONFIG = toml.load("./src/config.toml")
 client = commands.Bot(command_prefix="!", intents=discord.Intents.all())
+
 
 @client.event
 async def on_ready():
     await client.tree.sync()
     print(f"Logged In: {client.user}")
+
 
 @client.event
 async def setup_hook():
@@ -54,6 +57,7 @@ async def setup_hook():
 
         client.add_view(view, message_id=message_id)
 
+
 @client.event
 async def on_message(message: discord.Message):
     if message.author.bot:
@@ -72,6 +76,7 @@ async def on_message(message: discord.Message):
     
     greeted_gm = False
     gm_messages = ["good morning", "goodmorning", "morning", "mornin'", "mornin", "gm"]
+
     for gm_message in gm_messages:
         if gm_message in message.content.lower():
             greeted_gm = True
@@ -88,10 +93,12 @@ async def on_message(message: discord.Message):
 
     await message.author.send(content=f"{message.author.mention} {gm_message}. You have received **50 {points_settings.get_currency_name(guild_id=message.guild.id)}**. You may claim again tomorrow at <t:{int(time.time() + 86400)}:t> by greeting to everyone.")
 
+
 async def load():
     for filename in os.listdir("./commands"):
         if filename.endswith(".py"):
             await client.load_extension(f"commands.{filename[:-3]}")
+
 
 @client.hybrid_command(name="ping", description="Check if the bot is responsive.")
 async def ping(ctx):
@@ -107,10 +114,12 @@ async def ping(ctx):
 
     await ctx.send(embed=message_embed)
 
+
 async def main():
     async with client:
         await load()
         await client.start(token=CONFIG["DISCORD_BOT_TOKEN"])
+
 
 if __name__ == "__main__":
     asyncio.run(main())
