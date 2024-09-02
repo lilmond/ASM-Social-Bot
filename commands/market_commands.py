@@ -38,7 +38,7 @@ class MarketItemButtons(discord.ui.View):
         notification_channel_id = points_settings.get_market_notification_id(guild_id=interaction.guild_id)
 
         if not notification_channel_id:
-            notification_channel_id = <REDACTED>
+            notification_channel_id = 1263169181143142552
 
         await self.client.get_channel(notification_channel_id).send(embed=message_embed)
 
@@ -57,7 +57,7 @@ class MarketItemButtons(discord.ui.View):
         notification_channel_id = points_settings.get_market_notification_id(guild_id=interaction.guild_id)
 
         if not notification_channel_id:
-            notification_channel_id = <REDACTED>
+            notification_channel_id = 1263169181143142552
 
         await self.client.get_channel(notification_channel_id).send(embed=message_embed)
 
@@ -188,17 +188,23 @@ class ClaimStakeButtons(discord.ui.View):
         
         self.pressed = True
 
+
         embed = interaction.message.embeds[0]
-        embed.set_footer(text="CLAIMED!")
 
         self.yes_button.disabled = True
         self.no_button.disabled = True
 
-        stake_points = points_settings.get_user_stake_points(interaction.user.id)
-        cashback = int(3 * stake_points / 100)
+        if (points_settings.get_user_stake_points(user_id=interaction.user.id) < 1000):
+            embed.color = 0xff0000
+            embed.set_footer(text="ALREADY CLAIMED!")
+        else:
+            embed.set_footer(text="CLAIMED!")
 
-        points_settings.set_user_stake_points(user_id=interaction.user.id, stake_points=0)
-        points_settings.add_user_points(user_id=interaction.user.id, points=cashback) 
+            stake_points = points_settings.get_user_stake_points(interaction.user.id)
+            cashback = int(3 * stake_points / 100)
+
+            points_settings.set_user_stake_points(user_id=interaction.user.id, stake_points=0)
+            points_settings.add_user_points(user_id=interaction.user.id, points=cashback) 
 
         await interaction.response.edit_message(embed=embed, view=self)
 
